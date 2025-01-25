@@ -3,7 +3,7 @@ from components.button import Button
 
 class GameScene(BaseScene):
     def __init__(self, window):
-        super().__init__(window, "assets/images/game_bg.png")
+        super().__init__(window, "assets/images/background/background_game.png")
         
         
         self.main_menu_button = Button(
