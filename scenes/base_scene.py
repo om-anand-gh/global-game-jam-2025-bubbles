@@ -1,0 +1,55 @@
+import pyglet
+import time
+
+class BaseScene:
+    def __init__(self, window, background_image_path: str):
+        self.window = window
+
+        # Load and set the background image
+        self.background_image = pyglet.resource.image(background_image_path)
+        self.background_sprite = pyglet.sprite.Sprite(self.background_image)
+
+        # Center and scale the background image
+        self.background_sprite.scale = max(
+            window.width / self.background_image.width,
+            window.height / self.background_image.height,
+        )
+        self.background_sprite.x = (window.width - self.background_sprite.width) / 2
+        self.background_sprite.y = (window.height - self.background_sprite.height) / 2
+        
+        # Store elements in a hierarchical list for event handling
+        self.elements = []
+
+
+        
+        # Add a cooldown for mouse input
+        self.last_scene_switch = time.time()
+
+
+        # Bind event handlers
+        window.push_handlers(self)
+
+    def draw(self):
+        # Draw the background
+        self.background_sprite.draw()
+
+        # Draw the elements
+        for element in self.elements:
+            element.draw()
+
+    def cleanup(self):
+        # Clean up event handlers when switching scenes
+        self.window.remove_handlers(self)
+
+    def update(self, dt):
+        # Default update (can be overridden in derived classes)
+        pass
+    
+    def on_mouse_press(self, x, y, button, modifiers):
+        # Ignore mouse presses if still in cooldown
+        if time.time() - self.last_scene_switch < 1:
+            return
+        
+        # Forward mouse press to all interactive elements
+        for element in self.elements:
+            element.on_mouse_press(x, y, button, modifiers)

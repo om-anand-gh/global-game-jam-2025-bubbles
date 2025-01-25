@@ -7,4 +7,4 @@ def load_sound(name):
     return pyglet.resource.media(f"assets/sounds/{name}", streaming=False)
 
 def load_font():
-    return pyglet.resource.media(f"assets/sounds/SuperFrog-Yqy1q.ttf", streaming=False)
+    pyglet.resource.add_font(f"assets/fonts/SuperFrog-Yqy1q.ttf")
