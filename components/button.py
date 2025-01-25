@@ -6,9 +6,9 @@ from utils.resource_loader import load_image
 
 class Button:
     SIZES = {
-        "small": "button_small.png",
-        "medium": "button_medium.png",
-        "large": "button_large.png",
+        "small": "button/button_small.png",
+        "medium": "button/button_medium.png",
+        "large": "button/button_large.png",
     }
 
     def __init__(self, x, y, size="medium", text="", font_size=32, color=(0, 0, 0, 255), on_click=None):

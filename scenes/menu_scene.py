@@ -6,7 +6,7 @@ from components.button import Button
 
 class MenuScene(BaseScene):
     def __init__(self, window):
-        super().__init__(window, "assets/images/main_menu_bg.png")
+        super().__init__(window, "assets/images/background/background_main_menu.png")
 
 
         # Create a button
