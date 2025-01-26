@@ -10,12 +10,14 @@ class MenuScene(BaseScene):
 
 
         # Create a button
+        button_spacing = 100
         self.start_button = Button(
             x=window.width // 2,
-            y=window.height // 2,
+            y=window.height // 2 + button_spacing,
             size="medium",
             text="start",
             on_click=self.start_game
+            
         )
 
         self.exit_button = Button(
