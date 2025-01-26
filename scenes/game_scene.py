@@ -269,5 +269,6 @@ class GameScene(BaseScene):
         self.stop_music()
         player = pyglet.media.Player()
         player.pause()
-        # Switch to a game over scene or restart the game
-        self.return_to_menu()
+        # Switch to a game over scene
+        from scenes.game_over_scene import GameOverScene
+        self.window.switch_scene(GameOverScene(self.window))
