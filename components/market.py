@@ -1,7 +1,7 @@
 import pyglet
 
 import config
-from utils.resource_loader import load_image
+from utils.resource_loader import load_audio, load_image
 
 
 class Market:
@@ -59,6 +59,14 @@ class Market:
         self.sprite_coin.y = self.y - (self.sprite_coin.height * self.sprite_coin.scale) / 2
         self.sprite_coin.color = tint
 
+
+        # Load the pop asset
+        self.image_pop = load_image("bubble/pop_neutral.png")  # Replace with the actual pop asset
+        self.sprite_pop = pyglet.sprite.Sprite(self.image_pop)
+        self.sprite_pop.color = tint
+        self.is_popping = False  # Flag to indicate if the bubble is in the popping state
+        
+
         # Set the initial scale and position
         self.update_bubble_scale()
 
@@ -108,9 +116,12 @@ class Market:
 
     def draw(self):
         """Draws the market bubble."""
-        self.sprite_coin.draw()
-        self.sprite_bubble.draw()
-        self.sprite_bubble_eye.draw()
+        if self.is_popping:
+            self.sprite_pop.draw()
+        else:
+            self.sprite_coin.draw()
+            self.sprite_bubble.draw()
+            self.sprite_bubble_eye.draw()
     
     def get_center(self):
         """
@@ -133,3 +144,28 @@ class Market:
         bottom = self.sprite_bubble.y
         top = self.sprite_bubble.y + (self.sprite_bubble.height * self.sprite_bubble.scale)
         return left, right, top, bottom
+    
+    def should_pop(self):
+        """
+        Determines if the market bubble should pop.
+        The bubble pops if 80% of its size is smaller than or equal to the coin size.
+
+        Returns:
+            bool: True if the bubble should pop, False otherwise.
+        """
+        bubble_radius = (self.sprite_bubble.width * self.sprite_bubble.scale) / 2
+        coin_radius = (self.sprite_coin.width * self.sprite_coin.scale) / 2
+        if 0.8 * bubble_radius <= coin_radius:
+            self.is_popping = True
+            # Play audio when the object is to be popped
+            sound = load_audio("bubble_pop_audio.mp3")
+            sound.play()
+            return True
+        return False
+
+    def show_pop_asset(self):
+        """Replaces the bubble and coin with the pop asset."""
+        self.sprite_pop.x = self.sprite_bubble.x
+        self.sprite_pop.y = self.sprite_bubble.y
+        self.sprite_pop.height = self.sprite_bubble.height
+        self.sprite_pop.width = self.sprite_bubble.width

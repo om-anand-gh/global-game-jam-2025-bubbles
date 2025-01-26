@@ -30,6 +30,7 @@ class MenuScene(BaseScene):
         self.elements = [self.start_button, self.exit_button]
     
     def start_game(self):
+        self.stop_music()
         from scenes.game_scene import GameScene
         # Logic to switch scenes
         self.window.switch_scene(GameScene(self.window))

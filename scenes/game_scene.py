@@ -13,8 +13,8 @@ from components.market import Market
 class GameScene(BaseScene):
 
     def __init__(self, window):
-        super().__init__(window, "assets/images/background/background_game.png")
-
+        super().__init__(window, "assets/images/background/background_game.png", "game_bg_audio.mp3")
+        
         self.main_menu_button = Button(
             x=window.width - 100,
             y=window.height - 50,
@@ -65,7 +65,7 @@ class GameScene(BaseScene):
         coin_id = random.choice(list(self.markets.keys()))
         trend = random.choices(
             population=list(BubblerPost.TREND.keys()),
-            weights=[45, 10, 45],  # Probabilities: 40% down, 20% neutral, 40% up
+            weights=[70, 10, 20],  # Probabilities: 40% down, 20% neutral, 40% up
             k=1,  # Number of items to pick
         )[0]
 
@@ -93,15 +93,21 @@ class GameScene(BaseScene):
 
     def update(self, dt):
         # Update markets' animation
-        for market in self.markets.values():
+        for coin_id, market in list(self.markets.items()):
             market.animate_size(dt)
-
+            if market.is_popping:
+                market.show_pop_asset()  # Display the pop asset
+                self.available_combinations.append((market.coin, market.color))
+                self.markets.pop(coin_id)  # Remove the market after showing the pop asset
+            elif market.should_pop():
+                market.show_pop_asset()
         for post in self.posts[:]:
             post.update_position()
             if post.is_out_of_bounds():
                 self.posts.remove(post)
 
     def return_to_menu(self):
+        self.stop_music()
         # Import MenuScene here to avoid circular import
         from scenes.menu_scene import MenuScene
 
