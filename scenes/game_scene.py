@@ -25,9 +25,9 @@ class GameScene(BaseScene):
         self.markets = {
             "banana": Market(coin="banana", x=400, y=400, tint=(255, 255, 0)),
             "beanie": Market(coin="beanie", x=800, y=400, tint=(255, 0, 0)),
-            "headphone": Market(coin="headphone", x=400, y=200),
-            "glasses": Market(coin="glasses", x=800, y=200),
-            "tophat": Market(coin="tophat", x=600, y=300),
+            "headphone": Market(coin="headphone", x=400, y=200, tint=(0, 255, 255)),
+            "glasses": Market(coin="glasses", x=800, y=200, tint=(85, 85, 255)),
+            "tophat": Market(coin="tophat", x=600, y=300, tint=(132, 45, 69)),
         }
 
         # Schedule random post creation every 2 seconds
