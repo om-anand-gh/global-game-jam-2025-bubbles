@@ -1,7 +1,7 @@
 import pyglet
 
 import config
-from utils.resource_loader import load_image
+from utils.resource_loader import load_audio, load_image
 
 
 class Market:
@@ -157,6 +157,9 @@ class Market:
         coin_radius = (self.sprite_coin.width * self.sprite_coin.scale) / 2
         if 0.8 * bubble_radius <= coin_radius:
             self.is_popping = True
+            # Play audio when the object is to be popped
+            sound = load_audio("bubble_pop_audio.mp3")
+            sound.play()
             return True
         return False
 

@@ -1,7 +1,7 @@
 import pyglet
 
 import config
-from utils.resource_loader import load_image
+from utils.resource_loader import load_image, load_audio
 
 class BubblerPost:
     PROFILE_PICTURE = {
@@ -79,6 +79,10 @@ class BubblerPost:
             y_offset=0.15, 
             height_scale=0.7
         )
+
+        # Play audio when the object is created
+        sound = load_audio("new_post_audio.mp3")
+        sound.play()
 
     def update_position(self):
         """Updates the position to simulate scrolling."""
