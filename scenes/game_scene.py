@@ -83,7 +83,7 @@ class GameScene(BaseScene):
         coin_id = random.choice(list(self.markets.keys()))
         trend = random.choices(
             population=list(BubblerPost.TREND.keys()),
-            weights=[70, 10, 20],  # Probabilities: 40% down, 20% neutral, 40% up
+            weights=[50, 30, 20],  # Probabilities: 50% down, 20% neutral, 20% up
             k=1,  # Number of items to pick
         )[0]
 
@@ -180,7 +180,7 @@ class GameScene(BaseScene):
                 return
 
     def randomly_create_coin(self, dt):
-        if random.random() < 0.9999:  # 50% chance of creating a new coin
+        if random.random() < 0.6:  # 60% chance of creating a new coin
             self.create_random_coin()
 
     def is_position_valid(self, x, y, size):
