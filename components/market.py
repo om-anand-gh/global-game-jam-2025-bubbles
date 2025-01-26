@@ -1,15 +1,25 @@
 import pyglet
+
+import config
 from utils.resource_loader import load_image
 
 
 class Market:
     TREND_EFFECT = {
-        "up": 1.1,      # Increase market size by 10%
-        "neutral": 1.0, # No change
-        "down": 0.9,    # Decrease market size by 10%
+        "up": 1.1,  # Increase market size by 10%
+        "neutral": 1.0,  # No change
+        "down": 0.9,  # Decrease market size by 10%
     }
 
-    def __init__(self, coin: str, x: float, y: float, initial_size: float = 100, tint=(255, 255, 255)):
+    def __init__(
+        self,
+        coin_id: str,
+        coin: str,
+        x: float,
+        y: float,
+        initial_size: float = 100,
+        tint=(255, 255, 255),
+    ):
         """
         Initializes the Market component for a specific coin.
 
@@ -19,43 +29,55 @@ class Market:
             y (float): The y-coordinate for the market's bubble.
             initial_size (float): The initial size of the market bubble.
         """
+        self.coin_id = coin_id
         self.coin = coin
         self.x = x
         self.y = y
         self.size = initial_size
         self.target_size = initial_size
         self.animation_speed = 5.0  # Size units per second
+        self.color = tint
 
         # Load the bubble asset for the market
-        self.image_bubble = load_image("bubble/bubble_empty.png")  # Replace with your bubble asset
-        self.sprite_bubble = pyglet.sprite.Sprite(
-            self.image_bubble, x=self.x, y=self.y
-        )
+        self.image_bubble = load_image("bubble/bubble_empty.png")
+        self.sprite_bubble = pyglet.sprite.Sprite(self.image_bubble)
 
         # Set the tint color
         self.sprite_bubble.color = tint
 
-        # Load the bubble asset for the market
-        self.image_bubble_eye = load_image("bubble/bubble_face_happy.png")  # Replace with your bubble asset
-        self.sprite_bubble_eye = pyglet.sprite.Sprite(
-            self.image_bubble_eye, x=self.x - self.sprite_bubble.width // 3, y=self.y - self.sprite_bubble.height // 3
-        )
+        # Load the bubble eye asset
+        self.image_bubble_eye = load_image("bubble/bubble_face_happy.png")
+        self.sprite_bubble_eye = pyglet.sprite.Sprite(self.image_bubble_eye)
 
+        # Load the additional asset based on the coin
+        self.image_coin = load_image(config.COIN[coin])
+        self.sprite_coin = pyglet.sprite.Sprite(self.image_coin)
 
-        # Set the initial scale
+        # Scale the additional asset to half the initial size
+        self.sprite_coin.scale = initial_size / 200  # Divide by 200 for half the size (100 is full)
+        self.sprite_coin.x = self.x - (self.sprite_coin.width * self.sprite_coin.scale) / 2
+        self.sprite_coin.y = self.y - (self.sprite_coin.height * self.sprite_coin.scale) / 2
+        self.sprite_coin.color = tint
+
+        # Set the initial scale and position
         self.update_bubble_scale()
 
     def update_bubble_scale(self):
-        """Updates the size of the bubble based on the current market size."""
+        """Updates the size and position of the bubble based on the current market size."""
         scale_factor = self.size / 100  # Assuming the default size corresponds to 100
         self.sprite_bubble.scale = scale_factor
-        self.sprite_bubble.x = self.x - self.sprite_bubble.width / 2
-        self.sprite_bubble.y = self.y - self.sprite_bubble.height / 2
+        self.sprite_bubble.x = self.x - (self.sprite_bubble.width * scale_factor) / 2
+        self.sprite_bubble.y = self.y - (self.sprite_bubble.height * scale_factor) / 2
 
         self.sprite_bubble_eye.scale = scale_factor
-        self.sprite_bubble_eye.x = self.x - self.sprite_bubble_eye.width / 2
-        self.sprite_bubble_eye.y = self.y - self.sprite_bubble_eye.height / 2
-        
+        self.sprite_bubble_eye.x = self.x - (self.sprite_bubble_eye.width * scale_factor) / 2
+        self.sprite_bubble_eye.y = self.y - (self.sprite_bubble_eye.height * scale_factor) / 2
+
+        # Keep sprite_coin centered (independent of scale)
+        self.sprite_coin.x = self.x - (self.sprite_coin.width * self.sprite_coin.scale) / 2
+        self.sprite_coin.y = self.y - (self.sprite_coin.height * self.sprite_coin.scale) / 2
+
+
 
     def animate_size(self, dt):
         """Animates the market size towards the target size."""
@@ -77,12 +99,37 @@ class Market:
             trend (str): The trend direction ("up", "neutral", "down").
         """
         if trend not in self.TREND_EFFECT:
-            raise ValueError(f"Invalid trend '{trend}'. Must be 'up', 'neutral', or 'down'.")
+            raise ValueError(
+                f"Invalid trend '{trend}'. Must be 'up', 'neutral', or 'down'."
+            )
 
         # Update the target market size
         self.target_size *= self.TREND_EFFECT[trend]
 
     def draw(self):
         """Draws the market bubble."""
+        self.sprite_coin.draw()
         self.sprite_bubble.draw()
         self.sprite_bubble_eye.draw()
+    
+    def get_center(self):
+        """
+        Returns the center (x, y) of the market bubble, considering scaling.
+        """
+        center_x = self.sprite_bubble.x + (self.sprite_bubble.width * self.sprite_bubble.scale) / 2
+        center_y = self.sprite_bubble.y + (self.sprite_bubble.height * self.sprite_bubble.scale) / 2
+        return center_x, center_y
+
+    def get_bounding_box(self):
+        """
+        Returns the bounding box of the bubble sprite as (left, right, top, bottom).
+        Considers the sprite's scale and position.
+
+        Returns:
+            tuple: (left, right, top, bottom) coordinates of the sprite's bounding box.
+        """
+        left = self.sprite_bubble.x
+        right = self.sprite_bubble.x + (self.sprite_bubble.width * self.sprite_bubble.scale)
+        bottom = self.sprite_bubble.y
+        top = self.sprite_bubble.y + (self.sprite_bubble.height * self.sprite_bubble.scale)
+        return left, right, top, bottom

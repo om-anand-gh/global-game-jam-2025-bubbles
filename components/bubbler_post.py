@@ -14,20 +14,13 @@ class BubblerPost:
         "plain_green": "bubbler/bubbler_user_plain_green.png",
         "plain_purple": "bubbler/bubbler_user_plain_purple.png",
     }
-    COIN = {
-        "banana": "coin/coin_banana.png",
-        "beanie": "coin/coin_beanie.png",
-        "headphone": "coin/coin_headphone.png",
-        "glasses": "coin/coin_glasses.png",
-        "tophat": "coin/coin_tophat.png",
-    }
     TREND = {
         "down": "bubbler/bubbler_trend_down.png",
         "neutral": "bubbler/bubbler_trend_neutral.png",
         "up": "bubbler/bubbler_trend_up.png",
     }
 
-    def __init__(self, profile_picture: str, coin: str, trend: str, y_offset=600):
+    def __init__(self, profile_picture: str, coin: str, trend: str, tint=(255, 255, 255)):
         # Validate profile_picture
         if profile_picture not in self.PROFILE_PICTURE:
             raise ValueError(
@@ -35,9 +28,9 @@ class BubblerPost:
             )
         
         # Validate coin
-        if coin not in self.COIN:
+        if coin not in config.COIN:
             raise ValueError(
-                f"Invalid coin '{coin}'. Choose from: {', '.join(self.COIN.keys())}."
+                f"Invalid coin '{coin}'. Choose from: {', '.join(config.COIN.keys())}."
             )
         
         # Validate trend
@@ -56,7 +49,7 @@ class BubblerPost:
         # Load the post image
         self.image_post = load_image("bubbler/bubbler_post.png")
         self.sprite_post = pyglet.sprite.Sprite(self.image_post, x=self.x, y=self.y)
-
+        
         # Scale the post
         scale_factor = (0.175 * window.width) / self.sprite_post.width
         self.sprite_post.scale = scale_factor
@@ -71,11 +64,13 @@ class BubblerPost:
 
         # Load and scale coin
         self.sprite_coin = self.load_and_scale_sprite(
-            self.COIN[coin], 
+            config.COIN[coin], 
             x_offset=0.4, 
             y_offset=0.15, 
             height_scale=0.7
         )
+
+        self.sprite_coin.color = tint
 
         # Load and scale trend
         self.sprite_trend = self.load_and_scale_sprite(
