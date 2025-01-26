@@ -50,14 +50,14 @@ class GameScene(BaseScene):
         self.available_combinations = list(product(config.COIN.keys(), self.colors))
 
         # Cash and investments
-        self.cash = 100  # Starting cash
+        self.cash = 1000  # Starting cash
         self.investments = {}  # Track investments per market
         self.invest_amount = 50  # Fixed amount to invest per click
 
         self.cash_label = pyglet.text.Label(
             f"Cash: ${self.cash:.2f} | Investments: ${sum(self.investments.values()):.2f}",
             font_name=config.FONT,
-            font_size=16,
+            font_size=20,
             x=10,
             y=10,
             anchor_x="left",
