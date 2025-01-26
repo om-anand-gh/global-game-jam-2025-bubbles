@@ -1,8 +1,10 @@
 import pyglet
 import time
 
+from utils.resource_loader import load_audio
+
 class BaseScene:
-    def __init__(self, window, background_image_path: str):
+    def __init__(self, window, background_image_path: str, background_audio_path: str = "menu_bg_audio.mp3"):
         self.window = window
 
         # Load and set the background image
@@ -20,6 +22,13 @@ class BaseScene:
         # Store elements in a hierarchical list for event handling
         self.elements = []
 
+        # Load the background music
+        self.music = load_audio(background_audio_path)
+        self.music_player = pyglet.media.Player()
+        self.music_player.queue(self.music)
+        self.music_player.loop = True  # Enable looping
+        self.music_player.volume = 0.3
+        self.music_player.play()  # Start playback
 
         
         # Add a cooldown for mouse input
@@ -53,3 +62,11 @@ class BaseScene:
         # Forward mouse press to all interactive elements
         for element in self.elements:
             element.on_mouse_press(x, y, button, modifiers)
+
+    def stop_music(self):
+        """Stop the background music."""
+        self.music_player.pause()
+
+    def resume_music(self):
+        """Resume the background music."""
+        self.music_player.play()

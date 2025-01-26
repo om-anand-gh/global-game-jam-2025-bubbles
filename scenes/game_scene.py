@@ -13,8 +13,8 @@ from components.market import Market
 class GameScene(BaseScene):
 
     def __init__(self, window):
-        super().__init__(window, "assets/images/background/background_game.png")
-
+        super().__init__(window, "assets/images/background/background_game.png", "game_bg_audio.mp3")
+        
         self.main_menu_button = Button(
             x=window.width - 100,
             y=window.height - 50,
@@ -107,6 +107,7 @@ class GameScene(BaseScene):
                 self.posts.remove(post)
 
     def return_to_menu(self):
+        self.stop_music()
         # Import MenuScene here to avoid circular import
         from scenes.menu_scene import MenuScene
 
