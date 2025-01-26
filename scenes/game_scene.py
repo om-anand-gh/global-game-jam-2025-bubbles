@@ -95,11 +95,12 @@ class GameScene(BaseScene):
         # Update markets' animation
         for coin_id, market in list(self.markets.items()):
             market.animate_size(dt)
-            if market.should_pop():
-                # Add the coin-color combination back to available combinations
+            if market.is_popping:
+                market.show_pop_asset()  # Display the pop asset
                 self.available_combinations.append((market.coin, market.color))
-                self.markets.pop(coin_id)  # Remove the market
-
+                self.markets.pop(coin_id)  # Remove the market after showing the pop asset
+            elif market.should_pop():
+                market.show_pop_asset()
         for post in self.posts[:]:
             post.update_position()
             if post.is_out_of_bounds():

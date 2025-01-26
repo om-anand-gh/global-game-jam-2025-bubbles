@@ -59,6 +59,14 @@ class Market:
         self.sprite_coin.y = self.y - (self.sprite_coin.height * self.sprite_coin.scale) / 2
         self.sprite_coin.color = tint
 
+
+        # Load the pop asset
+        self.image_pop = load_image("bubble/pop_neutral.png")  # Replace with the actual pop asset
+        self.sprite_pop = pyglet.sprite.Sprite(self.image_pop)
+        self.sprite_pop.color = tint
+        self.is_popping = False  # Flag to indicate if the bubble is in the popping state
+        
+
         # Set the initial scale and position
         self.update_bubble_scale()
 
@@ -108,9 +116,12 @@ class Market:
 
     def draw(self):
         """Draws the market bubble."""
-        self.sprite_coin.draw()
-        self.sprite_bubble.draw()
-        self.sprite_bubble_eye.draw()
+        if self.is_popping:
+            self.sprite_pop.draw()
+        else:
+            self.sprite_coin.draw()
+            self.sprite_bubble.draw()
+            self.sprite_bubble_eye.draw()
     
     def get_center(self):
         """
@@ -144,4 +155,14 @@ class Market:
         """
         bubble_radius = (self.sprite_bubble.width * self.sprite_bubble.scale) / 2
         coin_radius = (self.sprite_coin.width * self.sprite_coin.scale) / 2
-        return 0.8 * bubble_radius <= coin_radius
+        if 0.8 * bubble_radius <= coin_radius:
+            self.is_popping = True
+            return True
+        return False
+
+    def show_pop_asset(self):
+        """Replaces the bubble and coin with the pop asset."""
+        self.sprite_pop.x = self.sprite_bubble.x
+        self.sprite_pop.y = self.sprite_bubble.y
+        self.sprite_pop.height = self.sprite_bubble.height
+        self.sprite_pop.width = self.sprite_bubble.width
