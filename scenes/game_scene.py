@@ -13,8 +13,10 @@ from components.market import Market
 class GameScene(BaseScene):
 
     def __init__(self, window):
-        super().__init__(window, "assets/images/background/background_game.png", "game_bg_audio.mp3")
-        
+        super().__init__(
+            window, "assets/images/background/background_game.png", "game_bg_audio.mp3"
+        )
+
         self.main_menu_button = Button(
             x=window.width - 100,
             y=window.height - 50,
@@ -47,6 +49,22 @@ class GameScene(BaseScene):
 
         self.available_combinations = list(product(config.COIN.keys(), self.colors))
 
+        # Cash and investments
+        self.cash = 1000  # Starting cash
+        self.investments = {}  # Track investments per market
+        self.invest_amount = 50  # Fixed amount to invest per click
+
+        self.cash_label = pyglet.text.Label(
+            f"Cash: ${self.cash:.2f} | Investments: ${sum(self.investments.values()):.2f}",
+            font_name=config.FONT,
+            font_size=20,
+            x=10,
+            y=10,
+            anchor_x="left",
+            anchor_y="bottom",
+            color=(255, 255, 255, 255),  # White color
+        )
+
         # Schedule random coin creation every few seconds
         pyglet.clock.schedule_interval(
             self.randomly_create_coin, config.NEW_COIN_FREQUENCY
@@ -73,12 +91,18 @@ class GameScene(BaseScene):
             profile_picture=profile_picture,
             coin=self.markets[coin_id].coin,
             trend=trend,
-            tint=self.markets[coin_id].color
+            tint=self.markets[coin_id].color,
         )
         self.posts.append(new_post)
 
         # Update the market size based on the trend
         self.markets[coin_id].apply_trend(trend)
+
+        # Adjust investment values based on the trend
+        if trend == "up":
+            self.investments[coin_id] = self.investments.get(coin_id, 0) * 1.1
+        elif trend == "down":
+            self.investments[coin_id] = self.investments.get(coin_id, 0) * 0.9
 
     def draw(self):
         super().draw()
@@ -91,20 +115,34 @@ class GameScene(BaseScene):
         for post in self.posts:
             post.draw()
 
+        self.cash_label.draw()
+
     def update(self, dt):
         # Update markets' animation
         for coin_id, market in list(self.markets.items()):
             market.animate_size(dt)
             if market.is_popping:
-                market.show_pop_asset()  # Display the pop asset
-                self.available_combinations.append((market.coin, market.color))
-                self.markets.pop(coin_id)  # Remove the market after showing the pop asset
+                market.show_pop_asset()
+                self.investments[coin_id] = 0  # Reset investment
+                self.available_combinations.append(
+                    (self.markets[coin_id].coin, self.markets[coin_id].color)
+                )
+                self.markets.pop(coin_id)
+
             elif market.should_pop():
                 market.show_pop_asset()
+
+        # Game over if cash + investments < 0
+        total_investment = sum(self.investments.values())
+        if self.cash + total_investment <= 0:
+            self.game_over()
+
         for post in self.posts[:]:
             post.update_position()
             if post.is_out_of_bounds():
                 self.posts.remove(post)
+
+        self.cash_label.text = f"Cash: ${self.cash:.2f} | Investments: ${sum(self.investments.values()):.2f}"
 
     def return_to_menu(self):
         self.stop_music()
@@ -120,14 +158,16 @@ class GameScene(BaseScene):
 
         coin_id = f"coin_{len(self.markets)}"  # Generate a unique ID for the coin
         coin_type, color = random.choice(self.available_combinations)
-        self.available_combinations.remove((coin_type, color))  
+        self.available_combinations.remove((coin_type, color))
         initial_size = 80
         # Try finding a valid position
         max_attempts = 10  # Maximum attempts to find a non-overlapping position
         for _ in range(max_attempts):
             x, y = random.randint(
                 self.window.width * 0.3, self.window.width - initial_size
-            ), random.randint(initial_size, int(0.7 * self.window.height) - initial_size)
+            ), random.randint(
+                initial_size, int(0.7 * self.window.height) - initial_size
+            )
             if self.is_position_valid(x, y, initial_size):
                 self.markets[coin_id] = Market(
                     coin=coin_type,
@@ -177,3 +217,58 @@ class GameScene(BaseScene):
                 return False  # Overlap detected
 
         return True
+
+    def on_mouse_press(self, x, y, button, modifiers):
+        if button == pyglet.window.mouse.LEFT:
+            print("handling left click")
+            self.handle_investment(x, y)
+        elif button == pyglet.window.mouse.RIGHT:
+            print("handling right click")
+            self.handle_withdrawal(x, y)
+
+    def handle_investment(self, x, y):
+        """
+        Invest a fixed amount of cash in a market if a bubble is clicked.
+        """
+        for coin_id, market in self.markets.items():
+            if self.is_bubble_clicked(x, y, market):
+                if self.cash >= self.invest_amount:
+                    self.cash -= self.invest_amount
+                    self.investments[coin_id] = (
+                        self.investments.get(coin_id, 0) + self.invest_amount
+                    )
+                else:
+                    print("Not enough cash to invest!")
+                return
+
+    def handle_withdrawal(self, x, y):
+        """
+        Withdraw a fixed amount of cash from a market if a bubble is clicked.
+        """
+        for coin_id, market in self.markets.items():
+            if self.is_bubble_clicked(x, y, market):
+                if self.investments.get(coin_id, 0) >= self.invest_amount:
+                    self.investments[coin_id] -= self.invest_amount
+                    self.cash += self.invest_amount
+                else:
+                    print("Not enough investment in this market to withdraw!")
+                return
+
+    def is_bubble_clicked(self, x, y, market):
+        """
+        Check if a bubble was clicked.
+        """
+        left, right, top, bottom = market.get_bounding_box()
+        return left <= x <= right and bottom <= y <= top
+
+    def game_over(self):
+        """
+        Ends the game when cash + investments < 0.
+        """
+        print("Game Over! You ran out of cash.")
+        self.stop_music()
+        player = pyglet.media.Player()
+        player.pause()
+        # Switch to a game over scene
+        from scenes.game_over_scene import GameOverScene
+        self.window.switch_scene(GameOverScene(self.window))

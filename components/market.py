@@ -159,7 +159,9 @@ class Market:
             self.is_popping = True
             # Play audio when the object is to be popped
             sound = load_audio("bubble_pop_audio.mp3")
-            sound.play()
+            player = pyglet.media.Player()
+            player.queue(sound)
+            player.play()
             return True
         return False
 

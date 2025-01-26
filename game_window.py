@@ -1,6 +1,6 @@
 import pyglet
 # from scenes.menu_scene import MenuScene
-from scenes.game_scene import GameScene
+from scenes.menu_scene import MenuScene
 from config import FPS
 from utils import resource_loader
 
@@ -8,7 +8,7 @@ class GameWindow(pyglet.window.Window):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.current_scene = GameScene(self)
+        self.current_scene = MenuScene(self)
         
         # Schedule updates (i.e FPS)
         pyglet.clock.schedule_interval(self.update, 1/FPS)
