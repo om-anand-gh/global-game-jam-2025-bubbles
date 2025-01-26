@@ -133,3 +133,15 @@ class Market:
         bottom = self.sprite_bubble.y
         top = self.sprite_bubble.y + (self.sprite_bubble.height * self.sprite_bubble.scale)
         return left, right, top, bottom
+    
+    def should_pop(self):
+        """
+        Determines if the market bubble should pop.
+        The bubble pops if 80% of its size is smaller than or equal to the coin size.
+
+        Returns:
+            bool: True if the bubble should pop, False otherwise.
+        """
+        bubble_radius = (self.sprite_bubble.width * self.sprite_bubble.scale) / 2
+        coin_radius = (self.sprite_coin.width * self.sprite_coin.scale) / 2
+        return 0.8 * bubble_radius <= coin_radius

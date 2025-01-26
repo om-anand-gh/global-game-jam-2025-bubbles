@@ -65,7 +65,7 @@ class GameScene(BaseScene):
         coin_id = random.choice(list(self.markets.keys()))
         trend = random.choices(
             population=list(BubblerPost.TREND.keys()),
-            weights=[45, 10, 45],  # Probabilities: 40% down, 20% neutral, 40% up
+            weights=[70, 10, 20],  # Probabilities: 40% down, 20% neutral, 40% up
             k=1,  # Number of items to pick
         )[0]
 
@@ -93,8 +93,12 @@ class GameScene(BaseScene):
 
     def update(self, dt):
         # Update markets' animation
-        for market in self.markets.values():
+        for coin_id, market in list(self.markets.items()):
             market.animate_size(dt)
+            if market.should_pop():
+                # Add the coin-color combination back to available combinations
+                self.available_combinations.append((market.coin, market.color))
+                self.markets.pop(coin_id)  # Remove the market
 
         for post in self.posts[:]:
             post.update_position()
