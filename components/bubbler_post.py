@@ -82,7 +82,10 @@ class BubblerPost:
 
         # Play audio when the object is created
         sound = load_audio("new_post_audio.mp3")
-        sound.play()
+        player = pyglet.media.Player()
+        player.queue(sound)
+        player.play()
+
 
     def update_position(self):
         """Updates the position to simulate scrolling."""

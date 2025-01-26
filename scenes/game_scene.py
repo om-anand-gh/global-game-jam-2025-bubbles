@@ -267,5 +267,7 @@ class GameScene(BaseScene):
         """
         print("Game Over! You ran out of cash.")
         self.stop_music()
+        player = pyglet.media.Player()
+        player.pause()
         # Switch to a game over scene or restart the game
         self.return_to_menu()
